@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: Xdatabase
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d
+    container_name: mysql-container
+    ports:
+      - "3306:3306"
+# # Run
+# docker-compose up -d
+
+# # OR
+# # Build image
+# docker build -t mysql .
+# # Create container
+# docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=root -p 3306:3306 -d mysql:latest
+
+# # Access to container db
+# docker exec -it mysql-container bash
+# mysql -u root usuario -p
+# # Enter password: root
+# CREATE DATABASE Prueba; --or if DB called Prueba already exists-- use Prueba;
