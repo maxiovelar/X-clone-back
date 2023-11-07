@@ -15,8 +15,25 @@ from app.db.db_config import connect_to_db
 JWT_SECRET = config("secret")
 JWT_ALGORITHM = config("algorithm")
 
-bcript_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="/api/token")
+
+
+def check_user_exists(username: str, email: str):
+    query = "SELECT * FROM users WHERE username = %s OR email = %s"
+    user_data = (username, email)
+
+    try:
+        with connect_to_db() as cnx:
+            with cnx.cursor(dictionary=True) as cursor:
+                cursor.execute(query, user_data)
+                user_in_db = cursor.fetchone()
+            if user_in_db is None:
+                return False
+            return True
+
+    except mysql.connector.Error as err:
+        return {"error": str(err), "message": "Error while fetching user."}
 
 
 def authenticate_user(username: str, password: str):
@@ -30,7 +47,7 @@ def authenticate_user(username: str, password: str):
                 user_in_db = cursor.fetchone()
             if user_in_db is None:
                 return False
-            if not bcript_context.verify(password, user_in_db["password"]):
+            if not bcrypt_context.verify(password, user_in_db["password"]):
                 return False
 
         return user_in_db
@@ -39,9 +56,9 @@ def authenticate_user(username: str, password: str):
         return {"error": str(err), "message": "Error while fetching user."}
 
 
-def create_access_token(username: str, user_id: int, espires_delta: timedelta):
+def create_access_token(username: str, user_id: int, expires_delta: timedelta):
     encode = {"sub": username, "id": user_id}
-    expires = datetime.utcnow() + espires_delta
+    expires = datetime.utcnow() + expires_delta
     encode.update({"exp": expires})
     return jwt.encode(encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
 

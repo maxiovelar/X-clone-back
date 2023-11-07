@@ -8,16 +8,11 @@ class TweetSchema(BaseModel):
 
 class UserSchema(BaseModel):
     id: int = Field(default=None)
-    fullname: str = Field(default=None)
+    firstname: str = Field(default=None)
+    lastname: str = Field(default=None)
     username: str = Field(default=None)
     email: EmailStr = Field(default=None)
     password: str = Field(default=None)
-
-
-# class UserLoginSchema(BaseModel):
-#     username: str = Field(default=None)
-#     # email: EmailStr = Field(default=None)
-#     password: str = Field(default=None)
 
 
 class TokenSchema(BaseModel):
