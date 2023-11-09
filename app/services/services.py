@@ -63,7 +63,9 @@ async def create_tweet(
     user=Depends(get_current_user), tweet: TweetSchema = Body(default=None)
 ):
     if user is None:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated"
+        )
 
     query = "INSERT INTO tweets (content) VALUES (%s)"
     tweet_content = (tweet.content,)
@@ -84,7 +86,7 @@ async def create_tweet(
 
 ## Register new user
 def create_user(user: UserSchema = Body(default=None)):
-    if type(user) is not UserSchema:
+    if not isinstance(user, UserSchema):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid user data"
         )
@@ -130,7 +132,10 @@ async def login(username, password):
     user = authenticate_user(username, password)
 
     if not user:
-        raise HTTPException(status_code=401, detail="Invalid username or password")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username or password",
+        )
 
     token = create_access_token(user["username"], user["id"], timedelta(minutes=30))
 
